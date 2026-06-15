@@ -1,0 +1,69 @@
+# Data (large, user-downloaded)
+data/
+results/
+tmp/
+
+# Environment / secrets
+.env
+.env.*
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Temporary / scratch scripts
+scripts/tmp_*.py
+
+# Archives and session logs
+archive/
+CLAUDE.md
+CLAUDE_*.md
+SYNC_AUDIT*.md
+COPILOT_*.md
+
+# Zip files
+*.zip
+
+# ACL style template source
+acl-style-files-master/
+
+# Audio files
+*.wav
+
+# Backups
+*.bak
+*.wrong_*
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.pdf
+paper/drafts/
+
+# Figures: track PDFs only (LaTeX uses PDF); exclude PNGs
+paper/figures/*.png
+
+# Editor / OS
+.vscode/
+*.swp
+*~
+Thumbs.db
+.DS_Store
+
+# Notebooks
+notebooks/
+Literatures/
+
+# Pretrained model weights
+tmp/pretrained_models/

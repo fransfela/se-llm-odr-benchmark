@@ -1,0 +1,21 @@
+﻿faster-whisper==1.2.1
+jiwer==4.0.0
+matplotlib==3.10.7
+nara-wpe==0.0.11
+numpy==2.2.6
+onnxruntime==1.23.2
+openai==2.41.1
+pandas==2.3.3
+pesq==0.0.4
+pystoi==0.4.1
+python-dotenv==1.2.1
+scikit-learn==1.7.2
+scipy==1.16.2
+seaborn==0.13.2
+soundfile==0.13.1
+speechbrain==1.0.2
+SRMRpy @ https://github.com/jfsantos/SRMRpy/archive/master.zip
+torch==2.11.0+cu128
+torchaudio==2.11.0+cu128
+tqdm==4.67.1
+transformers==4.57.1

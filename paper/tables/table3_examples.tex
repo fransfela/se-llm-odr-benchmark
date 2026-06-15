@@ -1,0 +1,24 @@
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llll}
+\toprule
+\textbf{Clip} & \textbf{Condition} & \textbf{Transcript} &
+\textbf{Intent} \\
+\midrule
+\multirow{2}{*}{11862} & Clean & ``Recommend a movie for me.'' & \texttt{recommendation\_movies} \\
+ & MetricGAN{+} & ``Thank you.'' & \texttt{general\_greet} \\
+\midrule
+\multirow{2}{*}{14746} & Clean & ``What is the capital of Kazakhstan?'' & \texttt{qa\_factoid} \\
+ & MetricGAN{+} & ``This is a caption for Justin.'' & \texttt{general\_quirky} \\
+\midrule
+\multirow{2}{*}{12308} & Clean & ``Book me a train ticket.'' & \texttt{transport\_ticket} \\
+ & MetricGAN{+} & ``We're free to go.'' & \texttt{general\_quirky} \\
+\bottomrule
+\end{tabular}
+\caption{Example clips where MetricGAN{+} causes intent
+collapse to catch-all categories. Transcription remains
+fluent but loses domain-specific lexical cues, causing the
+LLM to default to generic intents.}
+\label{tab:examples}
+\end{table*}

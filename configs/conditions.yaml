@@ -1,0 +1,50 @@
+conditions:
+  clean:
+    description: "Unprocessed SLURP test audio, no processing"
+    requires_enhancement: false
+
+  noisy:
+    snr_db: [5, 10, 15]
+    noise_source: "data/raw/dns/noise/"
+    description: "Additive DNS noise at 3 SNR levels"
+
+  ns_metricgan:
+    model: "speechbrain/metricgan-plus-voicebank"
+    input_condition: "noisy"
+    description: "MetricGAN+ discriminative noise suppression"
+
+  ns_diffusion:
+    model: "sp-uhh/sgmse-plus"
+    diffusion_steps: 30
+    input_condition: "noisy"
+    description: "SGMSE+ generative diffusion SE"
+
+  dereverb:
+    rir_source: "data/raw/dns/rirs/"
+    rt60_range: [0.3, 0.6, 0.9]
+    wpe_iterations: 5
+    wpe_taps: 10
+    wpe_delay: 3
+    description: "DNS RIR convolution then WPE dereverberation"
+
+  echo_sim:
+    far_end_source: "data/raw/dns/clean/"
+    rir_source: "data/raw/dns/rirs/"
+    ser_db: [-10, -5, 0]
+    description: >
+      Simulated acoustic echo without cancellation. Isolates echo effect before
+      any AEC processing. SER ∈ {-10, -5, 0} dB per ITU-T P.1110 definition.
+
+  aec_full:
+    near_end_source: "data/raw/slurp/test/audio/"
+    far_end_source: "data/raw/dns/clean/"
+    rir_source: "data/raw/dns/rirs/"
+    ser_db: [-10, -5, 0]
+    aec_model: "DTLN-AEC"
+    model_path: "tmp/pretrained_models/DTLN-aec_model"
+    description: "Simulated echo then DTLN-AEC cancellation. Full pipeline. Apache 2.0."
+
+  ns_aec_combined:
+    input_condition: "aec_full"
+    then: "ns_metricgan"
+    description: "Full AEC then MetricGAN+ — realistic conferencing pipeline"

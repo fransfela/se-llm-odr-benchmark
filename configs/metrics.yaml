@@ -1,0 +1,170 @@
+categories:
+  distortion:       [snr, si_snr, si_sdr, sdr]
+  perceptual:       [pesq, stoi, visqol, warpq]
+  non_intrusive:    [dnsmos_sig, dnsmos_bak, dnsmos_ovrl, nisqa, noresqa,
+                     noresqa_mos, scoreq_nr, nomad, squim_mos, squim_stoi,
+                     squim_pesq, squim_si_sdr]
+  special_purpose:  [srmr, emotion_sim]
+
+polqa_excluded: "proprietary — limited gains over PESQ (see URGENT 2025)"
+
+metrics:
+  snr:
+    type: intrusive
+    package: numpy  # computed directly: 10*log10(sum(clean**2)/sum((clean-enh)**2))
+    valid_min: null
+    valid_max: null
+
+  si_snr:
+    type: intrusive
+    package: torchmetrics.functional.audio
+    function: scale_invariant_signal_noise_ratio
+    valid_min: null
+    valid_max: null
+
+  si_sdr:
+    type: intrusive
+    package: torchmetrics.functional.audio
+    function: scale_invariant_signal_distortion_ratio
+    valid_min: null
+    valid_max: null
+
+  sdr:
+    type: intrusive
+    package: torchmetrics.functional.audio
+    function: signal_distortion_ratio
+    valid_min: null
+    valid_max: null
+
+  pesq:
+    type: intrusive
+    package: pesq
+    mode: wb
+    fs: 16000
+    valid_min: -0.5
+    valid_max: 4.5
+
+  stoi:
+    type: intrusive
+    package: pystoi
+    extended: false
+    valid_min: 0.0
+    valid_max: 1.0
+
+  visqol:
+    type: intrusive
+    package: visqol
+    mode: speech
+    fs: 16000
+    min_length_s: 1.0
+    valid_min: 0.0
+    valid_max: 5.0
+
+  warpq:
+    type: intrusive
+    package: warp_q
+    valid_min: 0.0
+    valid_max: 1.0
+
+  dnsmos_sig:
+    type: non_intrusive
+    package: speechmetrics
+    submetric: sig
+    valid_min: 1.0
+    valid_max: 5.0
+
+  dnsmos_bak:
+    type: non_intrusive
+    package: speechmetrics
+    submetric: bak
+    valid_min: 1.0
+    valid_max: 5.0
+
+  dnsmos_ovrl:
+    type: non_intrusive
+    package: speechmetrics
+    submetric: ovrl
+    valid_min: 1.0
+    valid_max: 5.0
+
+  nisqa:
+    type: non_intrusive
+    package: nisqa
+    valid_min: 1.0
+    valid_max: 5.0
+
+  noresqa:
+    type: non_intrusive
+    package: noresqa
+    metric_type: 0
+    valid_min: 0.0
+    valid_max: 1.0
+
+  noresqa_mos:
+    type: non_intrusive
+    package: noresqa
+    metric_type: 1
+    valid_min: 1.0
+    valid_max: 5.0
+
+  scoreq_nr:
+    type: non_intrusive
+    package: scoreq
+    mode: nr
+    valid_min: 1.0
+    valid_max: 5.0
+
+  nomad:
+    type: non_intrusive
+    package: versa.utterance_metrics.nomad
+    valid_min: 0.0
+    valid_max: 1.0
+
+  squim_mos:
+    type: intrusive
+    package: torchaudio.pipelines
+    model: SQUIM_SUBJECTIVE
+    valid_min: 1.0
+    valid_max: 5.0
+    note: "reference-based MOS prediction — neural model"
+
+  squim_stoi:
+    type: non_intrusive
+    package: torchaudio.pipelines
+    model: SQUIM_OBJECTIVE
+    output_key: stoi
+    valid_min: 0.0
+    valid_max: 1.0
+    note: "predicted STOI without reference — compare vs actual stoi"
+
+  squim_pesq:
+    type: non_intrusive
+    package: torchaudio.pipelines
+    model: SQUIM_OBJECTIVE
+    output_key: pesq
+    valid_min: -0.5
+    valid_max: 4.5
+    note: "predicted PESQ without reference — compare vs actual pesq"
+
+  squim_si_sdr:
+    type: non_intrusive
+    package: torchaudio.pipelines
+    model: SQUIM_OBJECTIVE
+    output_key: si_sdr
+    valid_min: null
+    valid_max: null
+    note: "predicted SI-SDR without reference"
+
+  srmr:
+    type: non_intrusive
+    package: SRMRpy
+    valid_min: 0.0
+    valid_max: null
+
+  emotion_sim:
+    type: intrusive
+    package: versa.utterance_metrics.emotion
+    model: EMO2VEC
+    valid_min: 0.0
+    valid_max: 1.0
+    note: "cosine similarity of EMO2VEC embeddings between clean and enhanced"
