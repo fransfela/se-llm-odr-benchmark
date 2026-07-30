@@ -1,0 +1,6 @@
+condition,n,correction_n,correction_pct,regression_n,regression_pct,both_wrong_diff_n,both_wrong_diff_pct,unaffected_n,unaffected_pct,harm_benefit_ratio
+noisy,2968,53,0.0179,177,0.0596,171,0.0576,2567,0.8649,3.34
+ns_metricgan,2969,74,0.0249,562,0.1893,309,0.1041,2024,0.6817,7.59
+aec_sim,2969,75,0.0253,1734,0.584,674,0.227,486,0.1637,23.12
+aec_full,2966,71,0.0239,713,0.2404,415,0.1399,1767,0.5958,10.04
+dereverb,2970,65,0.0219,125,0.0421,130,0.0438,2650,0.8923,1.92

@@ -26,7 +26,7 @@ SYSTEM_PROMPT = (
     "Output ONLY one intent label from the list. No punctuation. No explanation."
 )
 
-CONDITIONS = ["clean", "noisy", "ns_metricgan", "aec_sim", "dereverb"]
+CONDITIONS = ["clean", "noisy", "ns_metricgan", "aec_sim", "dereverb", "aec_full"]
 
 
 def _model_slug(model_name):
@@ -34,9 +34,9 @@ def _model_slug(model_name):
 
 
 def get_client():
-    key = os.getenv("LLM_API_KEY")
+    key = os.getenv("LLM_API_KEY") or os.getenv("GN_APIM_KEY")
     if not key:
-        raise ValueError("LLM_API_KEY not set in .env")
+        raise ValueError("LLM_API_KEY or GN_APIM_KEY not set in .env")
     model = os.getenv("LLM_MODEL", "gemini-2.5-flash-lite")
     base_url = os.getenv("LLM_BASE_URL", "")
 
@@ -126,7 +126,7 @@ def classify_transcripts(transcript_csv, intent_list_path, output_csv,
         intent_list = [line.strip() for line in f if line.strip()]
     intent_set = set(intent_list)
 
-    with open(transcript_csv, newline="") as f:
+    with open(transcript_csv, newline="", encoding="utf-8", errors="replace") as f:
         rows = list(csv.DictReader(f))
 
     if client is None or model is None:

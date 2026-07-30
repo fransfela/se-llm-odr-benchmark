@@ -1,0 +1,6 @@
+condition,n,median_pesq,good_quality_but_diverged_n,good_quality_but_diverged_pct,poor_quality_but_not_diverged_n,poor_quality_but_not_diverged_pct
+noisy,2968,1.607,169,0.0569,1252,0.4218
+ns_metricgan,2969,1.902,328,0.1105,867,0.292
+aec_sim,2969,1.089,1222,0.4116,223,0.0751
+aec_full,2966,1.5,488,0.1645,772,0.2603
+dereverb,2970,2.348,148,0.0498,1313,0.4421
