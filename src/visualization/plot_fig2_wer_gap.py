@@ -109,7 +109,7 @@ def plot_wer_odr_gap(
               handletextpad=0.4)
 
     # Clean reference points: ODR = 0 by construction
-    # WER from CLAUDE.md: Whisper=0.507, wav2vec2=0.388
+    # WER on clean SLURP test: Whisper=0.507, wav2vec2=0.388
     ax.scatter(0.507, 0.0, marker='*', color='#444444', s=90,
                zorder=6, edgecolors='black', linewidths=0.5,
                label='_nolegend_')
