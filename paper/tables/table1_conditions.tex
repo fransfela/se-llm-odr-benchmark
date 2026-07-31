@@ -1,24 +1,18 @@
-\begin{table}[t]
-\centering\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lll}
-\toprule
-\textbf{Condition} & \textbf{Category} & \textbf{Description} \\
-\midrule
-Clean      & Reference       & Original SLURP \\
-           &                 & recording \\
-Noisy      & Degraded        & DNS noise, \\
-           &            & SNR\,=\,10\,dB \\
-MetricGAN+ & Discrim.\ SE    & GAN noise \\
-           &                 & suppression \\
-Echo (sim) & Echo            & Simulated echo \\
-           &                 & no cancellation \\
-Echo + DTLN-AEC & AEC   & DTLN-AEC on \\
-           &                 & echo simulation \\
-Dereverb   & Dereverberation & WPE (5 iterations) \\
-\bottomrule
-\end{tabular}
-\caption{Enhancement conditions applied to 2{,}974 SLURP test
-recordings. All degradations simulated using DNS Challenge corpora.}
-\label{tab:conditions}
-\end{table}
+\begin{table*}[t]
+  \centering
+  \begin{tabular}{lll}
+    \hline
+    \textbf{Condition} & \textbf{Category} & \textbf{Description} \\
+    \hline
+    Clean      & Reference       & Original SLURP recording \\
+    Noisy      & Degraded        & DNS noise, SNR\,=\,10\,dB \\
+    MetricGAN+ & Discrim.\ SE    & GAN noise suppression \\
+    Echo (sim) & Echo            & Simulated echo, no AEC \\
+    Echo + DTLN-AEC & AEC        & DTLN-AEC on echo sim. \\
+    Dereverb   & Dereverberation & WPE (5 iterations) \\
+    \hline
+  \end{tabular}
+  \caption{Enhancement conditions applied to 2{,}974 SLURP test
+    recordings. All degradations simulated using DNS Challenge corpora.}
+  \label{tab:conditions}
+\end{table*}

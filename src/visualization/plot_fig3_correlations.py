@@ -16,8 +16,24 @@ METRIC_DISPLAY = {
 METRICS_6 = ['pesq', 'stoi', 'snr', 'srmr', 'si_sdr', 'squim_mos']
 
 
+def _bootstrap_ci(x, y, n_resamples=10000, seed=42, method='spearman'):
+    """Return (lo, hi) 95% CI for correlation via percentile bootstrap."""
+    rng = np.random.default_rng(seed)
+    n = len(x)
+    boots = np.empty(n_resamples)
+    x_arr, y_arr = np.asarray(x), np.asarray(y)
+    for i in range(n_resamples):
+        idx = rng.integers(0, n, n)
+        if method == 'spearman':
+            boots[i], _ = stats.spearmanr(x_arr[idx], y_arr[idx])
+        else:
+            boots[i], _ = stats.pearsonr(x_arr[idx], y_arr[idx])
+    return float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))
+
+
 def _compute_correlations(metrics_csv='results/metrics_core.csv'):
-    """Compute Spearman rho and Pearson r for each metric vs WER and vs ODR."""
+    """Compute Spearman rho and Pearson r for each metric vs WER and vs ODR,
+    with 95% bootstrap CIs (n=10000, seed=42)."""
     met = pd.read_csv(metrics_csv)
     clip = pd.read_csv('results/clip_level_divergence.csv')
 
@@ -50,29 +66,57 @@ def _compute_correlations(metrics_csv='results/metrics_core.csv'):
         rho_o, _ = stats.spearmanr(sub_o[m], sub_o['diverged'])
         r_w, _ = stats.pearsonr(sub_w[m], sub_w['wer_capped'])
         r_o, _ = stats.pearsonr(sub_o[m], sub_o['diverged'])
+        sp_odr_lo, sp_odr_hi = _bootstrap_ci(sub_o[m], sub_o['diverged'],
+                                              method='spearman')
+        sp_wer_lo, sp_wer_hi = _bootstrap_ci(sub_w[m], sub_w['wer_capped'],
+                                              method='spearman')
+        pe_odr_lo, pe_odr_hi = _bootstrap_ci(sub_o[m], sub_o['diverged'],
+                                              method='pearson')
+        pe_wer_lo, pe_wer_hi = _bootstrap_ci(sub_w[m], sub_w['wer_capped'],
+                                              method='pearson')
         results[m] = {
             'spearman_wer': rho_w, 'spearman_odr': rho_o,
             'pearson_wer': r_w, 'pearson_odr': r_o,
+            'sp_odr_ci': (sp_odr_lo, sp_odr_hi),
+            'sp_wer_ci': (sp_wer_lo, sp_wer_hi),
+            'pe_odr_ci': (pe_odr_lo, pe_odr_hi),
+            'pe_wer_ci': (pe_wer_lo, pe_wer_hi),
         }
     return results
 
 
-def _make_panel(ax, labels, wer_vals, odr_vals, xlabel, xlim):
+def _make_panel(ax, labels, wer_vals, odr_vals, xlabel, xlim,
+                wer_ci=None, odr_ci=None):
     """Draw a grouped horizontal bar chart with WER and ODR bars.
 
     BW-safe: WER bars use diagonal hatching (///), ODR bars are solid.
     Colors are kept for on-screen reading but hatching ensures B/W
     differentiation.
+    wer_ci / odr_ci: list of (lo, hi) tuples, one per metric.
     """
     y = np.arange(len(labels))
     h = 0.32
 
+    def _xerr(vals, cis):
+        """Convert (lo, hi) CI pairs to asymmetric xerr arrays."""
+        if cis is None:
+            return None
+        lo_err = [v - ci[0] for v, ci in zip(vals, cis)]
+        hi_err = [ci[1] - v for v, ci in zip(vals, cis)]
+        return [lo_err, hi_err]
+
     bars_wer = ax.barh(y + h / 2, wer_vals, height=h, color='#5B9BD5',
             alpha=0.85, label='vs. WER', zorder=3,
-            hatch='///', edgecolor='#3A6EA5', linewidth=0.5)
+            hatch='///', edgecolor='#3A6EA5', linewidth=0.5,
+            xerr=_xerr(wer_vals, wer_ci),
+            error_kw=dict(ecolor='#1C4587', elinewidth=0.8, capsize=2.0,
+                          capthick=0.8, zorder=4))
     bars_odr = ax.barh(y - h / 2, odr_vals, height=h, color='#FF7F0E',
             alpha=0.85, label='vs. ODR', zorder=3,
-            edgecolor='#CC6600', linewidth=0.5)
+            edgecolor='#CC6600', linewidth=0.5,
+            xerr=_xerr(odr_vals, odr_ci),
+            error_kw=dict(ecolor='#7F3300', elinewidth=0.8, capsize=2.0,
+                          capthick=0.8, zorder=4))
 
     for i, (vw, vo) in enumerate(zip(wer_vals, odr_vals)):
         nudge = -0.02 if vw < 0 else 0.01
@@ -111,8 +155,11 @@ def plot_correlations(
     fig_a, ax_a = plt.subplots(figsize=(3.25, 2.4))
     pearson_wer = [data[m]['pearson_wer'] for m in order]
     pearson_odr = [data[m]['pearson_odr'] for m in order]
+    pe_wer_ci   = [data[m]['pe_wer_ci']   for m in order]
+    pe_odr_ci   = [data[m]['pe_odr_ci']   for m in order]
     _make_panel(ax_a, labels, pearson_wer, pearson_odr,
-                'Pearson $r$', (-0.65, 0.15))
+                'Pearson ($r$)', (-0.65, 0.15),
+                wer_ci=pe_wer_ci, odr_ci=pe_odr_ci)
     fig_a.tight_layout(pad=0.4)
     save_figure(fig_a, 'fig3a_pearson')
     plt.close(fig_a)
@@ -121,8 +168,11 @@ def plot_correlations(
     fig_b, ax_b = plt.subplots(figsize=(3.25, 2.4))
     spearman_wer = [data[m]['spearman_wer'] for m in order]
     spearman_odr = [data[m]['spearman_odr'] for m in order]
+    sp_wer_ci    = [data[m]['sp_wer_ci']    for m in order]
+    sp_odr_ci    = [data[m]['sp_odr_ci']    for m in order]
     _make_panel(ax_b, labels, spearman_wer, spearman_odr,
-                'Spearman $\\rho$', (-0.65, 0.15))
+                'Spearman ($\\rho$)', (-0.65, 0.15),
+                wer_ci=sp_wer_ci, odr_ci=sp_odr_ci)
     fig_b.tight_layout(pad=0.4)
     save_figure(fig_b, 'fig3b_spearman')
     plt.close(fig_b)

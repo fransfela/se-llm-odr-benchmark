@@ -80,12 +80,19 @@ def metric_failure_analysis() -> pd.DataFrame:
         good_but_diverged = int((good_quality & diverged).sum())
         poor_but_not_diverged = int((~good_quality & ~diverged).sum())
         n = len(merged)
+        n_above = int(good_quality.sum())   # actual above-median count (accounts for ties)
+        n_below = n - n_above
+        # FN rate: P(diverge | PESQ >= median) — PESQ misses real damage
+        fn_rate = round(good_but_diverged / n_above, 4) if n_above > 0 else float("nan")
+        # FP rate: P(not diverge | PESQ < median) — PESQ over-warns on safe clips
+        fp_rate = round(poor_but_not_diverged / n_below, 4) if n_below > 0 else float("nan")
         rows.append({
             "condition": cond, "n": n, "median_pesq": round(median_pesq, 3),
+            "n_above_median": n_above, "n_below_median": n_below,
             "good_quality_but_diverged_n": good_but_diverged,
-            "good_quality_but_diverged_pct": round(good_but_diverged / n, 4),
+            "fn_rate": fn_rate,   # conditional: / n_above
             "poor_quality_but_not_diverged_n": poor_but_not_diverged,
-            "poor_quality_but_not_diverged_pct": round(poor_but_not_diverged / n, 4),
+            "fp_rate": fp_rate,   # conditional: / n_below
         })
     out = pd.DataFrame(rows)
     out.to_csv(ROOT / "results" / "metric_failure_analysis.csv", index=False)

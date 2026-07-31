@@ -1,0 +1,27 @@
+\begin{table*}[t]
+  \centering
+  \begin{tabular}{lrrrrr|r}
+    \hline
+    \textbf{Metric} & \textbf{Noisy} & \textbf{MetricGAN+} & \textbf{Echo (sim)} & \textbf{Echo+AEC} & \textbf{Dereverb} & \textbf{Pooled} \\
+    \hline
+    PESQ      & $-0.077$ & $\mathbf{-0.259}$ & $-0.048$ & $-0.202$ & $-0.036$ & $-0.467$ \\
+    STOI      & $-0.107$ & $\mathbf{-0.340}$ & $-0.190$ & $-0.225$ & $-0.069$ & $-0.411$ \\
+    SNR       & $+0.005$ & $-0.074$ & $+0.060$ & $\mathbf{+0.104}$ & $+0.007$ & $-0.116$ \\
+    SI-SDR    & $-0.031$ & $\mathbf{-0.265}$ & $-0.012$ & $+0.073$ & $+0.007$ & $-0.066$ \\
+    SRMR      & $-0.059$ & $\mathbf{-0.147}$ & $-0.023$ & $-0.061$ & $-0.063$ & $-0.111$ \\
+    SQUIM-MOS & $-0.012$ & $\mathbf{-0.101}$ & $+0.036$ & $-0.085$ & $+0.025$ & $-0.068$ \\
+    \hline
+  \end{tabular}
+  \caption{Within-condition Spearman $\rho$ (metric vs.\ binary diverged) for each
+    enhancement condition, with the pooled cross-condition $\rho$ for comparison.
+    \textbf{Bold} marks the largest $|\rho|$ per row.
+    MetricGAN{+} is the only condition where any metric reaches $|\rho|>0.2$;
+    STOI achieves the maximum ($-0.340$), PESQ reaches $-0.259$.
+    Positive SNR and SI-SDR values within Echo + DTLN-AEC reflect a sign
+    inversion: the nonlinear gain and phase modifications applied by the AEC
+    break the monotone fidelity-divergence relationship, consistent with the
+    SI-SDR anomaly in Table~\ref{tab:metrics}.
+    The large pooled-to-within drop confirms that pooled correlations reflect
+    between-condition separation, not clip-level predictive power.}
+  \label{tab:within_corr}
+\end{table*}

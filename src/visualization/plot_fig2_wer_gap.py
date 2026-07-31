@@ -98,22 +98,32 @@ def plot_wer_odr_gap(
                markerfacecolor='none', markeredgecolor='#555555',
                markersize=5, linewidth=0, markeredgewidth=1.0,
                label='wav2vec2 (open)'),
+        Line2D([0], [0], marker='*', color='w',
+               markerfacecolor='#444444', markeredgecolor='black',
+               markersize=6, linewidth=0,
+               label='Clean baseline'),
     ]
     ax.legend(handles=legend_elements, fontsize=5.5,
               loc='upper left', framealpha=0.9,
               edgecolor='#CCCCCC', borderpad=0.4,
               handletextpad=0.4)
 
-    ax.text(0.62, 0.03,
-            'LLM partially robust',
-            transform=ax.transAxes,
-            fontsize=5, fontstyle='italic',
-            color='#999999', va='bottom')
+    # Clean reference points: ODR = 0 by construction
+    # WER from CLAUDE.md: Whisper=0.507, wav2vec2=0.388
+    ax.scatter(0.507, 0.0, marker='*', color='#444444', s=90,
+               zorder=6, edgecolors='black', linewidths=0.5,
+               label='_nolegend_')
+    ax.scatter(0.388, 0.0, marker='*', facecolors='none',
+               edgecolors='#444444', s=90, zorder=6, linewidths=1.2,
+               label='_nolegend_')
+    ax.annotate('Clean', xy=(0.507, 0.0), xytext=(+6, +6),
+                textcoords='offset points', fontsize=5.5,
+                color='#444444')
 
-    ax.set_xlabel('Mean WER', fontsize=9)
+    ax.set_xlabel('Mean per-clip WER (capped at 1.0)', fontsize=8)
     ax.set_ylabel('Output Divergence Rate (ODR)', fontsize=9)
-    ax.set_xlim(0, lim)
-    ax.set_ylim(0, lim)
+    ax.set_xlim(-0.04, lim)
+    ax.set_ylim(-0.06, lim)
     ax.set_aspect('equal')
 
     fig.tight_layout(pad=0.4)
