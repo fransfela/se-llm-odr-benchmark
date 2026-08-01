@@ -43,7 +43,7 @@ corrections, regressions, and both-wrong shifts. Regressions
 outnumber corrections in every condition: 3.3:1 (Noisy), 7.6:1
 (MetricGAN+), 23.1:1 (Echo sim), 10.0:1 (Echo + DTLN-AEC), 1.9:1
 (Dereverb). This confirms that ODR predominantly captures harmful
-divergence. Full breakdown in Appendix Table 6.
+divergence. Full breakdown in Appendix Table 5.
 
 **Correlation analysis methodological concerns (binary ODR, pooled
 across conditions).**
@@ -53,7 +53,7 @@ overstate predictive value." Recomputing within each condition
 separately yields |rho| <= 0.34 (vs. pooled -0.467), confirming that
 no metric provides meaningful per-clip signal once the enhancement
 condition is fixed. We additionally report PESQ false-negative and
-false-positive rates (Appendix Table 7): under Echo (sim), 82.3% of
+false-positive rates (Appendix Table 6): under Echo (sim), 82.3% of
 above-median-PESQ clips still diverge; under Noisy/Dereverb, 84--88%
 of below-median-PESQ clips do not diverge.
 
@@ -89,7 +89,7 @@ slot-level F1 evaluation as future work.
 negatives)?**
 
 Added in Section 4.2 ("Where PESQ fails as an early-warning signal")
-and Appendix Table 7. Key finding: PESQ failure mode is
+and Appendix Table 6. Key finding: PESQ failure mode is
 condition-dependent. Under Echo (sim), the false-negative rate is
 82.3% (PESQ gives no safety margin where damage is worst). Under
 Dereverb and Noisy, the false-positive rate is 84--88% (PESQ
@@ -138,9 +138,9 @@ replication confirms the central finding.
 - Added Conclusion section (Section 6)
 - Added ODR column to Table 2
 - Added "Correct vs. harmful divergence" paragraph (Section 4.1)
-  with Appendix Table 6
+  with Appendix Table 5
 - Added "Where PESQ fails" paragraph (Section 4.2) with Appendix
-  Table 7
+  Table 6
 - Updated Limitations: Single LLM (with Pro replication numbers),
   clean-reference requirement, SE method coverage, classifier
   architecture, entity-level effects
