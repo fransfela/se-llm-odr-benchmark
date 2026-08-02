@@ -312,7 +312,7 @@ Figure~\ref{fig:wer_gap} plots WER against ODR for both models.
 All ten points fall below the diagonal ($y\!=\!x$): the LLM is
 partially robust to transcription errors in every condition and for
 both architectures, with Whisper gaps ranging from $-0.092$ to
-$-0.400$ and wav2vec2 gaps from $-0.125$ to $-0.152$.
+$-0.400$ and wav2vec2 gaps from $-0.114$ to $-0.150$.
 For Echo (sim), ODR of 0.836 and capped WER of 0.928 yield a
 gap of $-0.092$, reflecting WER saturation rather than LLM robustness. With raw
 WER of 1.448, Whisper transcribes the far-end loudspeaker rather than
@@ -482,7 +482,7 @@ signals rather than producing fine-grained intent errors.
 
 \paragraph{WER is an insufficient SE evaluation metric.}
 Our results show WER can overestimate LLM damage (MetricGAN{+}:
-WER\,=\,0.647, ODR\,=\,0.318, Gap\,=\,$-0.296$) or saturate while
+ODR\,=\,0.318, Gap\,=\,$-0.296$) or saturate while
 ODR remains catastrophic (Echo (sim): WER\,=\,1.448,
 ODR\,=\,0.836).
 We recommend ODR alongside WER as a standard evaluation criterion
@@ -550,8 +550,7 @@ The benchmark uses English-only data (SLURP), and enhancement artefacts
 on tonal languages or morphologically rich languages may interact
 differently with both ASR and LLM processing.
 
-ODR is defined over a fixed 77-class intent vocabulary. Open-ended
-Open-ended generation tasks (summarisation, question answering, or dialogue)
+ODR is defined over a fixed 77-class intent vocabulary. Open-ended generation tasks (summarisation, question answering, or dialogue)
 may exhibit different sensitivity to the transcript distortions induced
 by each SE condition, and the mapping between our findings and those
 settings requires further investigation.
