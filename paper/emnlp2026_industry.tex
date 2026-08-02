@@ -43,13 +43,13 @@ measures how often SE changes an LLM's intent classification relative
 to clean speech, and evaluate five enhancement conditions on the SLURP
 test set (2{,}974 clips) through Whisper large-v3 and wav2vec2-large
 cascades.
-Every condition produces significant ODR ($p < 0.001$); MetricGAN{+}
+Every condition produces significant ODR ($p < 0.001$). MetricGAN{+}
 more than doubles ODR versus unenhanced noisy speech (0.318 vs.\
 0.135) despite improving PESQ, and unmitigated echo reaches ODR of
 0.836 through a qualitatively distinct failure where ASR transcribes
 the wrong speaker entirely.
 Standard quality metrics show at best moderate correlation with ODR
-(PESQ: $\rho\!=\!-0.467$; SQUIM-MOS: $\rho\!=\!-0.068$), and both
+(PESQ $\rho\!=\!-0.467$, SQUIM-MOS $\rho\!=\!-0.068$), and both
 findings replicate across ASR architectures, indicating that current
 perceptual evaluation tools are insufficient proxies for LLM pipeline
 quality.
@@ -116,7 +116,6 @@ models, ruling out Whisper-specific artefacts. Our main contributions are as fol
 \label{sec:related}
 %% ============================================================
 
-\paragraph{SE and ASR.}
 SE-induced ASR degradation is well documented.
 \citet{lee2023d4am} propose joint SE+ASR training to mitigate it.
 \citet{chondhekar2025noising} show that MetricGAN{+} increases semWER
@@ -126,27 +125,26 @@ None of this work asks whether the resulting transcription errors
 actually change what a downstream LLM does with the output, which
 is the question we address here.
 
-\paragraph{SE and downstream NLP.}
-\citet{rai2024denoasr} show that denoising amplifies demographic
-bias in ASR.
-\citet{ali2022time} propose joint SE+intent training, noting that
-independently optimised SE may not serve downstream NLP well.
+At the downstream NLP level, \citet{rai2024denoasr} show that
+denoising amplifies demographic bias in ASR, and \citet{ali2022time}
+propose joint SE+intent training, noting that independently optimised
+SE may not serve downstream NLP well.
 Their solution requires retraining the SE model jointly with the
 downstream task, while we focus on diagnosing this effect in
 pipelines as they are already deployed, without retraining anything.
 
-\paragraph{Spoken LLM evaluation.}
-VoiceBench~\citep{chen2024voicebench, chen2026voicebench} evaluates
-LLM voice assistants under acoustic variation, but treats the whole
-audio-to-response pipeline as a black box rather than isolating the
-SE stage.
+Closest to our work, VoiceBench~\citep{chen2024voicebench, chen2026voicebench}
+evaluates LLM voice assistants under acoustic variation but treats the
+whole audio-to-response pipeline as a black box rather than isolating
+the SE stage.
 The URGENT challenge~\citep{zhang2024urgent} benchmarks SE across a
 wide range of distortions using perceptual and ASR-based metrics.
-Its 2025 edition~\citep{saijo2025interspeech} introduced
+its 2025 edition~\citep{saijo2025interspeech} introduced
 downstream-task metrics (word accuracy, speaker similarity) but
 no LLM semantic output evaluation.
-Our benchmark fills this gap. Like URGENT, it isolates SE as the variable of
-interest but measures its effect on an LLM's task output rather than on transcription or signal quality alone.
+Our benchmark fills this gap by isolating SE as the variable of
+interest and measuring its effect on an LLM's task output rather
+than on transcription or signal quality alone.
  
 %% ============================================================
 \section{Benchmark Design}
@@ -177,24 +175,22 @@ absent from prior NLP benchmarks.
 \textbf{Dereverberation} applies WPE~\citep{nakatani2010speech} to
 reverberant speech ($\text{RT60}\!\in\!\{0.3,\,0.6,\,0.9\}$\,s).
 
-\textbf{Echo + DTLN-AEC.}
-We additionally evaluate a complete AEC pipeline by
-applying DTLN-AEC~\citep{westhausen2021acoustic} (512-unit, 10.4M
-parameters), a dual-signal transformation LSTM network for acoustic
-echo cancellation, to the Echo~(sim) microphone signal using the
-far-end reference signal.
+\textbf{Echo + DTLN-AEC} applies DTLN-AEC~\citep{westhausen2021acoustic}
+(512-unit, 10.4M parameters), a dual-signal transformation LSTM
+network for acoustic echo cancellation, to the Echo~(sim) microphone
+signal using the far-end reference signal.
 This condition tests whether neural AEC restores LLM
 performance degraded by unmitigated echo.
  
 \subsection{Evaluation Pipeline}
  
-Each clip is transcribed by two ASR models: Whisper
+Each clip is transcribed by two ASR models, Whisper
 large-v3~\citep{radford2023robust} (encoder-decoder, beam size 5,
-temperature 0) as the primary model, and wav2vec2-large-960h~\citep{baevski2020wav2vec}
+temperature 0) as the primary model and wav2vec2-large-960h~\citep{baevski2020wav2vec}
 (self-supervised CTC) as the architectural comparison.
 Whisper WER on clean SLURP test speech is 0.507, reflecting the
-challenging spontaneous-speech acoustics of the corpus~\citep{bastianelli2020slurp};
-all ODR values are measured relative to this same clean baseline.
+challenging spontaneous-speech acoustics of the corpus~\citep{bastianelli2020slurp}.
+All ODR values are measured relative to this same clean baseline.
 
 \input{tables/table2_metrics}
 
@@ -217,6 +213,7 @@ We additionally report the WER--ODR gap:
 \text{Gap}(C) = \text{ODR}(C) - \frac{1}{N}\sum_{i=1}^{N}\min(\text{WER}_C^{(i)},\,1.0)
 \label{eq:gap}
 \end{equation}
+where $N$ is the same denominator as in Eq.~(\ref{eq:odr}).
 WER is clipped per utterance before averaging to bound the
 contribution of speaker-substitution clips whose raw WER
 exceeds 1.0 (Echo (sim): mean raw WER\,=\,1.448).
@@ -242,9 +239,8 @@ and Pearson $r$ against binary ODR with Bonferroni correction
 Figure~\ref{fig:odr} reports ODR for both
 ASR models across all non-clean conditions.
 All conditions produce statistically significant ODR ($p\!<\!0.001$),
-and the condition ranking is identical for both models:
-Echo (sim) $>$ Echo + DTLN-AEC $>$ MetricGAN{+} $>$ Noisy $>$
-Dereverb.
+and the condition ranking is identical for both models
+(Echo (sim) $>$ Echo + DTLN-AEC $>$ MetricGAN{+} $>$ Noisy $>$ Dereverb).
  
 Under Whisper, MetricGAN{+} produces ODR of 0.318
 (CI\,[0.301,\,0.335]), more than doubling the unenhanced noisy
@@ -256,7 +252,7 @@ and LLM task performance are not aligned.
 Dereverberation produces the lowest ODR (0.108,
 CI\,[0.097,\,0.119]), comparable to the noisy baseline.
 Under wav2vec2 the same ordering holds at higher absolute values
-(MetricGAN{+}: 0.474; noisy: 0.352), consistent with CTC decoding's
+(MetricGAN{+}: 0.474, noisy: 0.352), consistent with CTC decoding's
 greater sensitivity to frame-level spectral artefacts.
 
 \begin{figure}[t]
@@ -337,7 +333,7 @@ characterise the damage because it saturates.
 \includegraphics[width=0.5\linewidth]{figures/fig3b_spearman.pdf}
 \caption{Pearson ($r$, left) and Spearman ($\rho$, right) of each
 quality metric against WER and ODR. PESQ and STOI
-correlate comparably with both targets; non-intrusive SQUIM-MOS is
+correlate comparably with both targets. Non-intrusive SQUIM-MOS is
 near-zero for both, underscoring its inability to predict either
 transcription or semantic damage. All correlations significant
 ($p\!<\!0.001$, Bonferroni corrected). Error bars show 95\%
@@ -401,6 +397,11 @@ Spearman $\rho$ (right) for each metric against both WER and ODR.
 
 PESQ achieves the strongest Spearman correlation with ODR
 ($\rho\!=\!-0.467$), a moderate rank association at best.
+The moderate ceiling is partly structural. Quality metrics quantify
+signal-level fidelity while ODR measures semantic task fidelity,
+dimensions that are only loosely coupled, particularly when failure
+operates through categorical mechanisms such as speaker substitution
+rather than continuous spectral degradation.
 PESQ and STOI correlate comparably with WER and ODR
 ($\rho_{\text{WER}}\!=\!-0.439$ vs.\ $\rho_{\text{ODR}}\!=\!-0.467$
 for PESQ), confirming that perceptual metrics track transcription
@@ -416,7 +417,7 @@ reliably predict LLM task failure.
 
 \paragraph{Pooled correlations overstate predictive value.}
 The correlations above pool clips across all conditions, conflating
-within-condition variation with between-condition separation:
+within-condition variation with between-condition separation.
 Echo (sim) simultaneously has the lowest mean PESQ and the
 highest ODR as a \emph{condition}, which alone can produce a
 substantial pooled correlation even if PESQ does not distinguish
@@ -563,8 +564,8 @@ Lite), indicating the finding is not an artefact of limited classifier
 capacity. Full multi-family LLM evaluation covering encoder-based
 classifiers such as BERT-style joint intent/slot models remains future work.
 
-On the echo side, we evaluate a single neural AEC system (DTLN-AEC);
-other architectures, including multi-microphone beamforming-based
+On the echo side, we evaluate a single neural AEC system (DTLN-AEC).
+Other architectures, including multi-microphone beamforming-based
 cancellers and commercial AEC implementations, are untested and may
 offer different recovery profiles.
 
@@ -697,18 +698,19 @@ single keyword carries the intent.
 \section{Within-Condition Metric Correlations}
 \label{app:within_corr}
 
+\input{tables/table8_within_condition_corr}
+
 Table~\ref{tab:within_corr} reports Spearman $\rho$ between each
 quality metric and clip-level divergence computed \emph{separately}
 within each enhancement condition, alongside the pooled cross-condition
 value for comparison.
 Within any single condition, no metric exceeds $|\rho| = 0.34$
-(STOI within MetricGAN{+}); most are below 0.15, and several change
+(STOI within MetricGAN{+}). Most are below 0.15, and several change
 sign across conditions.
 The large reduction from pooled to within-condition values confirms
 that the pooled correlations (Table~\ref{tab:metrics},
 Figure~\ref{fig:correlations}) reflect between-condition separation
 rather than clip-level predictive power.
-\input{tables/table8_within_condition_corr}
 
 \vspace*{\fill}
 

@@ -54,7 +54,7 @@ separately yields |rho| <= 0.34 (vs. pooled -0.467), confirming that
 no metric provides meaningful per-clip signal once the enhancement
 condition is fixed. We additionally report PESQ false-negative and
 false-positive rates (Appendix Table 6): under Echo (sim), 82.3% of
-above-median-PESQ clips still diverge; under Noisy/Dereverb, 84--88%
+above-median-PESQ clips still diverge; under Noisy/Dereverb, 84 to 88%
 of below-median-PESQ clips do not diverge.
 
 **Simulated conditions only.**
@@ -92,7 +92,7 @@ Added in Section 4.2 ("Where PESQ fails as an early-warning signal")
 and Appendix Table 6. Key finding: PESQ failure mode is
 condition-dependent. Under Echo (sim), the false-negative rate is
 82.3% (PESQ gives no safety margin where damage is worst). Under
-Dereverb and Noisy, the false-positive rate is 84--88% (PESQ
+Dereverb and Noisy, the false-positive rate is 84 to 88% (PESQ
 over-warns on clips the LLM handles correctly). No single PESQ
 threshold separates safe from unsafe clips across conditions.
 
