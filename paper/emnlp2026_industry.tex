@@ -1,5 +1,5 @@
 \documentclass[11pt]{article}
-\usepackage[review,hyperref]{acl}
+\usepackage[hyperref]{acl}
 \usepackage{times}
 \usepackage{latexsym}
 \usepackage{booktabs}
@@ -14,21 +14,20 @@
 
 \usetikzlibrary{positioning}
 
-% \aclfinalcopy % Uncomment for camera-ready; comment for review
+\aclfinalcopy
 
 \title{Perceptually Better, Semantically Worse:\\
 Measuring Speech Enhancement Impact on
 LLM-Based Voice Systems}
 
-\author{Anonymous ACL submission}
-% \author{Randy Frans Fela \\
-%  GN Store Nord A/S \\
-%  Lautrupjerg 7, 2750 Ballerup, Denmark \\
-%  \texttt{rffela@gn.com} \\\And
-%  Pejman Mowlaee \\
-%  GN Store Nord A/S \\
-%  Lautrupjerg 7, 2750 Ballerup, Denmark \\
-%  \texttt{pmowlaee@gn.com} \\}
+\author{Randy Frans Fela \\
+ GN Audio A/S \\
+ Lautrupbjerg 7, 2750 Ballerup, Denmark \\
+ \texttt{rffela@gn.com} \\\And
+ Pejman Mowlaee \\
+ GN Audio A/S \\
+ Lautrupbjerg 7, 2750 Ballerup, Denmark \\
+ \texttt{pmowlaee@gn.com} \\}
 
 \begin{document}
 \maketitle
@@ -99,7 +98,7 @@ models, ruling out Whisper-specific artefacts. Our main contributions are as fol
   suppression, echo cancellation, and dereverberation on
   2{,}974 SLURP test clips with 77 intent classes, and release
   the full pipeline at
-  \url{https://anonymous.4open.science/r/se-llm-odr-benchmark}.
+  \url{https://github.com/fransfela/se-llm-odr-benchmark}.
 \item We show that enhancement can introduce systematic intent
   collapse toward catch-all categories, a failure mode
   invisible to WER and standard quality metrics.

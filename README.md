@@ -2,7 +2,7 @@
 
 Measuring Speech Enhancement Impact on LLM-Based Voice
 Systems. Code and evaluation pipeline for the EMNLP 2026
-Industry Track submission (anonymous, under review).
+Industry Track paper (accepted).
 
 ---
 
@@ -126,7 +126,14 @@ Place files under `data/raw/slurp/test/` and `data/raw/dns/` respectively.
 ## Citation
 
 ```bibtex
-% Citation to be added upon acceptance.
+@inproceedings{fela2026perceptually,
+  title     = {Perceptually Better, Semantically Worse: Measuring Speech Enhancement Impact on {LLM}-Based Voice Systems},
+  author    = {Fela, Randy Frans and Mowlaee, Pejman},
+  booktitle = {Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing: Industry Track},
+  year      = {2026},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://github.com/fransfela/se-llm-odr-benchmark},
+}
 ```
 
 ## License
