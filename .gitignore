@@ -19,12 +19,10 @@ build/
 # Temporary / scratch scripts
 scripts/tmp_*.py
 
-# Archives and session logs
+# Archives and local working notes
 archive/
-CLAUDE.md
-CLAUDE_*.md
+*_AUDIT*.md
 SYNC_AUDIT*.md
-COPILOT_*.md
 
 # Zip files
 *.zip
