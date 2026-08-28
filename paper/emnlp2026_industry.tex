@@ -11,6 +11,13 @@
 \usepackage{microtype}
 \usepackage{enumitem}
 
+\let\oldbibliography\thebibliography
+\renewcommand{\thebibliography}[1]{%
+  \oldbibliography{#1}%
+  \setlength{\itemsep}{2pt}%
+  \setlength{\baselineskip}{11pt}
+  \setlength{\lineskiplimit}{-\maxdimen}
+}
 
 \usetikzlibrary{positioning}
 
@@ -29,25 +36,23 @@ LLM-Based Voice Systems}
 \maketitle
 
 \begin{abstract}
-Speech enhancement (SE) is applied as a universal preprocessing step
+Speech enhancement (SE) is commonly applied as a preprocessing step
 in spoken AI pipelines under the assumption that better audio quality
-improves downstream task performance. Yet whether SE-induced
-distortions propagate to downstream LLM task performance remains an
-open question. We introduce Output Divergence Rate (ODR), which
-measures how often SE changes an LLM's intent classification relative
-to clean speech, and evaluate five enhancement conditions on the SLURP
-test set (2{,}974 clips) through Whisper large-v3 and wav2vec2-large
-cascades.
-Every condition produces significant ODR ($p < 0.001$). MetricGAN{+}
+improves downstream task performance. Whether SE-induced distortions
+propagate to downstream LLM task performance remains an open question.
+We introduce Output Divergence Rate (ODR), which measures how often SE
+changes an LLM's intent classification relative to clean speech, and
+benchmark five conditions on 2{,}974 SLURP clips using Whisper
+large-v3 and wav2vec2-large cascades. Every condition produces ODR significantly above zero
+($p < 0.001$, binomial test). MetricGAN{+}
 more than doubles ODR versus unenhanced noisy speech (0.318 vs.\
-0.135) despite improving PESQ, and unmitigated echo reaches ODR of
-0.836 through a qualitatively distinct failure where ASR transcribes
-the wrong speaker entirely.
-Standard quality metrics show at best moderate correlation with ODR
-(PESQ $\rho\!=\!-0.467$, SQUIM-MOS $\rho\!=\!-0.068$), and both
-findings replicate across ASR architectures, indicating that current
-perceptual evaluation tools are insufficient proxies for LLM pipeline
-quality.
+0.135) despite improving PESQ, and unmitigated echo reaches an ODR of
+0.836 through speaker substitution, a failure WER
+cannot capture. Audio quality metrics range from near-zero to moderate correlation with ODR
+(SQUIM-MOS $\rho\!=\!-0.068$, PESQ $\rho\!=\!-0.467$).
+The MetricGAN{+} and echo results replicate across ASR
+architectures, indicating that standard audio quality metrics are
+insufficient for LLM pipeline quality.
 \end{abstract}
  
 %% ============================================================
@@ -64,22 +69,21 @@ show MetricGAN{+} increases semWER across all 40 tested ASR
 configurations, and \citet{islam2026denoising} report the same for
 diffusion-based SE.
 What remains unknown is whether these distortions propagate to LLM
-reasoning.
-This is not straightforward, since LLMs exhibit robustness to noisy
-text~\citep{chen2024voicebench, chen2026voicebench} so that transcription degradation may not
-translate to semantic task failure, or it may cause
-different failures that WER cannot measure.
+reasoning. This question is not straightforward: LLMs exhibit
+robustness to noisy text~\citep{chen2024voicebench, chen2026voicebench},
+so transcription degradation may not translate to semantic task failure,
+or it may cause different failures that WER cannot measure.
  
 In this paper, we propose \textbf{Output Divergence Rate (ODR)},
 a clean-reference task-output divergence metric for measuring
-SE-induced instability in cascaded ASR--LLM voice systems, and
-construct a diagnostic benchmark across five enhancement
+SE-induced instability in cascaded ASR--LLM voice systems,
+benchmarked across five enhancement
 conditions on SLURP~\citep{bastianelli2020slurp}.
 Results show that LLMs absorb transcription errors to varying
 degrees (WER--ODR gap $< 0$ for all conditions), yet echo
 conditions produce catastrophic ODR through a qualitatively
 distinct speaker-substitution failure that WER cannot capture.
-Critically, standard audio quality metrics do not predict this damage,
+Standard audio quality metrics do not predict this damage,
 and findings are consistent across two architecturally distinct ASR
 models, ruling out Whisper-specific artefacts. Our main contributions are as follows:
 
@@ -93,17 +97,20 @@ models, ruling out Whisper-specific artefacts. Our main contributions are as fol
 \item We construct a six-condition benchmark spanning noise
   suppression, echo cancellation, and dereverberation on
   2{,}974 SLURP test clips with 77 intent classes, and release
-  the full pipeline at
-  \url{https://github.com/fransfela/se-llm-odr-benchmark}.
+  the full pipeline at \href{https://github.com/fransfela/se-llm-odr-benchmark}{https://github.com/fransfela/se-llm-odr-benchmark}.
+%\url{https://github.com/fransfela/se-llm-odr-benchmark}.
 \item We show that enhancement can introduce systematic intent
   collapse toward catch-all categories, a failure mode
   invisible to WER and standard quality metrics.
-\item We demonstrate that standard audio quality metrics correlate
-  with ODR across conditions but fail to predict which individual
-  clips will diverge within a given SE pipeline.
+\item We show that standard audio quality metrics reflect
+  between-condition ODR separation but have near-zero predictive
+  power for which individual clips will diverge once the enhancement
+  condition is fixed, making them unreliable per-clip early-warning
+  signals.
 \item Findings replicate across two ASR architectures
-  (attention-based and CTC-based): condition ranking
-  is architecture-agnostic.
+  (attention-based and CTC-based) and are robust to LLM capacity, %: Gemini~2.5 Pro confirms the MetricGAN{+} doubling effect  ($1.91{\times}$ vs.\ $2.36{\times}$ under Flash Lite),
+  indicating condition ranking and primary conclusions are
+  architecture- and classifier-agnostic.
 \end{enumerate}
 
 %% ============================================================
@@ -134,7 +141,7 @@ whole audio-to-response pipeline as a black box rather than isolating
 the SE stage.
 The URGENT challenge~\citep{zhang2024urgent} benchmarks SE across a
 wide range of distortions using perceptual and ASR-based metrics.
-its 2025 edition~\citep{saijo2025interspeech} introduced
+Its 2025 edition~\citep{saijo2025interspeech} introduced
 downstream-task metrics (word accuracy, speaker similarity) but
 no LLM semantic output evaluation.
 Our benchmark fills this gap by isolating SE as the variable of
@@ -176,6 +183,8 @@ network for acoustic echo cancellation, to the Echo~(sim) microphone
 signal using the far-end reference signal.
 This condition tests whether neural AEC restores LLM
 performance degraded by unmitigated echo.
+Figure~\ref{fig:spectrograms} (Appendix~\ref{app:spectrograms}) shows
+log-mel spectrograms of representative utterances, illustrating the acoustic signature of all six conditions.
  
 \subsection{Evaluation Pipeline}
  
@@ -203,7 +212,6 @@ where $\hat{y}_C^{(i)}$ is the predicted intent under condition $C$,
 $\hat{y}_{\text{clean}}^{(i)}$ is the clean baseline, and $N$
 excludes INVALID predictions.
 We additionally report the WER--ODR gap:
-
 \begin{equation}
 \text{Gap}(C) = \text{ODR}(C) - \frac{1}{N}\sum_{i=1}^{N}\min(\text{WER}_C^{(i)},\,1.0)
 \label{eq:gap}
@@ -236,13 +244,12 @@ ASR models across all non-clean conditions.
 All conditions produce statistically significant ODR ($p\!<\!0.001$),
 and the condition ranking is identical for both models
 (Echo (sim) $>$ Echo + DTLN-AEC $>$ MetricGAN{+} $>$ Noisy $>$ Dereverb).
- 
+
 Under Whisper, MetricGAN{+} produces ODR of 0.318
 (CI\,[0.301,\,0.335]), more than doubling the unenhanced noisy
 baseline (0.135, CI\,[0.123,\,0.147]).
-This is the central finding. MetricGAN{+} substantially improves PESQ
-and STOI yet introduces additional LLM semantic damage beyond what
-noise alone causes, demonstrating that perceptual quality improvement
+MetricGAN{+} raises PESQ yet simultaneously worsens STOI and more
+than doubles ODR, demonstrating that perceptual quality improvement
 and LLM task performance are not aligned.
 Dereverberation produces the lowest ODR (0.108,
 CI\,[0.097,\,0.119]), comparable to the noisy baseline.
@@ -253,9 +260,10 @@ greater sensitivity to frame-level spectral artefacts.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig1_odr.pdf}
-\caption{ODR per condition for Whisper large-v3 and wav2vec2-large,
-with 95\,\% CI. All conditions significant ($p\!<\!0.001$, binomial test).
-Condition ranking is identical across architectures.}
+\vspace{-.75cm}
+\caption{ODR by condition for Whisper large-v3 and wav2vec2-large,
+with 95\,\% CIs. All conditions are significant ($p\!<\!0.001$,
+binomial test). Rankings are identical across architectures.}
 \label{fig:odr}
 \end{figure}
 
@@ -264,27 +272,29 @@ Condition ranking is identical across architectures.}
 Table~\ref{tab:metrics} quantifies the
 perceptual--semantic decoupling.
 MetricGAN{+} raises PESQ from 1.76 to 1.94
-relative to Noisy ($\Delta\!=\!+0.18$), a modest
-improvement, while simultaneously \emph{reducing}
-STOI from 0.87 to 0.80 ($\Delta\!=\!-0.07$), and
+relative to Noisy ($\Delta\!=\!+0.18$), a modest gain that keeps
+both values within the ``bad'' range of the 1--4.5 scale,
+while simultaneously \emph{reducing}
+STOI from 0.87 to 0.80 ($\Delta\!=\!-0.07$) and
 more than doubling ODR from 0.135 to 0.318.
 This triple divergence is particularly damaging for
-practitioners because the metric that MetricGAN{+} is
-explicitly trained to maximize (PESQ) improves, the
-intelligibility proxy (STOI) worsens, and the
-downstream LLM task failure rate doubles.
+practitioners: the metric MetricGAN{+} is explicitly trained to
+maximise (PESQ) improves, the intelligibility proxy (STOI)
+worsens, and the downstream LLM task failure rate doubles.
 No single quality metric provides a reliable signal
 about the direction of LLM task impact.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig2_wer_gap.pdf}
-\caption{WER vs.\ ODR for Whisper (filled markers) and wav2vec2 (open markers).
+\vspace{-.75cm}
+\caption{WER vs.\ ODR for Whisper and wav2vec2 (filled and open markers).
 \textbf{$\star$} marks the clean baseline (ODR\,=\,0 by construction,
 WER reflecting Whisper/wav2vec2 accuracy on spontaneous SLURP speech).
-All enhancement conditions fall below $y\!=\!x$ (dashed), indicating
-partial LLM robustness to transcription errors across all conditions
-and architectures.}
+All points fall below $y\!=\!x$ for spectral distortion
+conditions. This reflects partial LLM robustness to transcription
+errors, while Echo~(sim) negative gap reflects WER ceiling
+saturation rather than LLM recovery.}
 \label{fig:wer_gap}
 \end{figure}
 
@@ -296,11 +306,37 @@ relative to Echo~(sim), SI-SDR worsens sharply
 ($-5.01\rightarrow-26.13$) and SRMR rises above even the
 Clean condition (10.98 vs.\ 8.56).
 We attribute this to the gain and phase adjustments DTLN-AEC
-applies to suppress the far-end signal, changes that are immaterial to intent recognition, but register as severe distortion under SI-SDR and as elevated modulation depth under SRMR. STOI also drops below its Echo~(sim) value (0.47 vs.\ 0.52) because STOI's short-time envelope correlation model assumes linear, memoryless distortion, an assumption that nonlinear echo cancellation deliberately violates, so STOI scores can fall even when perceptual intelligibility improves. Note that SI-SDR, SRMR, and STOI are not designed for AEC evaluation, where the output is intentionally gain- and phase-modified relative to the near-end reference. Taken together with the MetricGAN{+} case, these results show
+applies to suppress the far-end signal, changes immaterial to intent recognition, but register as severe distortion under SI-SDR and as elevated modulation depth under SRMR. STOI also drops below its Echo~(sim) value (0.47 vs.\ 0.52) because STOI's short-time envelope correlation model assumes linear, memoryless distortion, an assumption nonlinear echo cancellation deliberately violates, so STOI scores can fall even when intelligibility improves. SI-SDR, SRMR, and STOI are not designed for AEC evaluation,
+where output is intentionally gain- and phase-modified relative to
+the near-end reference.
+A parallel argument applies to Dereverb: intrusive metrics compare
+the WPE output against the dry clean recording. WPE cannot perfectly
+invert the room impulse response, so residual differences between
+its output and the dry reference produce severely negative SNR
+($-$4.72\,dB) and SI-SDR ($-$23.04\,dB) even though ODR is the
+lowest of all conditions (0.108), confirming that signal-level metrics
+do not track LLM task failure.
+Taken together with the MetricGAN{+} case, these results show
 that metrics from the same category (intrusive signal-level:
 SNR, SI-SDR) can disagree sharply about the direction of an
 enhancement's effect, independent of its actual impact on the
 downstream task.
+
+\begin{figure*}[ht!]
+\centering
+\includegraphics[width=0.5\linewidth]{figures/fig3a_pearson.pdf}\hfill
+\includegraphics[width=0.5\linewidth]{figures/fig3b_spearman.pdf}
+\vspace{-.75cm}
+\caption{Pearson ($r$, left) and Spearman ($\rho$, right) of each
+quality metric against WER and ODR. PESQ and STOI
+correlate comparably with both targets. Non-intrusive SQUIM-MOS is
+near-zero for both, underscoring its inability to predict either
+transcription or semantic damage. All Spearman $\rho$ values
+significant ($p\!<\!0.001$, Bonferroni corrected). Pearson SI-SDR
+is non-significant ($p\!=\!0.40$). Error bars show 95\%
+bootstrap confidence intervals.}
+\label{fig:correlations}
+\end{figure*}
 
 \paragraph{WER--ODR gap.}
 Figure~\ref{fig:wer_gap} plots WER against ODR for both models.
@@ -312,7 +348,7 @@ For Echo (sim), ODR of 0.836 and capped WER of 0.928 yield a
 gap of $-0.092$, reflecting WER saturation rather than LLM robustness. With raw
 WER of 1.448, Whisper transcribes the far-end loudspeaker rather than
 the user, producing a valid but entirely wrong transcript.
- 
+
 \paragraph{Echo condition.}
 The echo condition produces ODR of 0.836 (CI\,[0.823,\,0.849]) under
 Whisper and 0.853 under wav2vec2, converging across architectures.
@@ -321,20 +357,6 @@ far-end echo signal rather than the near-end speaker.
 This is a categorically different failure from spectral distortion:
 the LLM processes a semantically unrelated utterance, and WER cannot
 characterise the damage because it saturates.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.5\linewidth]{figures/fig3a_pearson.pdf}\hfill
-\includegraphics[width=0.5\linewidth]{figures/fig3b_spearman.pdf}
-\caption{Pearson ($r$, left) and Spearman ($\rho$, right) of each
-quality metric against WER and ODR. PESQ and STOI
-correlate comparably with both targets. Non-intrusive SQUIM-MOS is
-near-zero for both, underscoring its inability to predict either
-transcription or semantic damage. All correlations significant
-($p\!<\!0.001$, Bonferroni corrected). Error bars show 95\%
-bootstrap confidence intervals ($n\!=\!10{,}000$ resamples).}
-\label{fig:correlations}
-\end{figure*}
 
 \paragraph{Echo with cancellation.}
 Applying DTLN-AEC neural echo cancellation to the
@@ -369,24 +391,25 @@ Table~\ref{tab:examples} shows representative examples of this
 collapse.
 
 \paragraph{Correct vs.\ harmful divergence.}
-ODR treats every clean-vs-condition disagreement as damage, which
-conflates genuine harm with the rarer case where SE incidentally
-corrects a clean-speech misclassification. Using SLURP ground-truth
-intents, we decompose each condition's divergent clips into
-corrections (clean wrong, condition correct), regressions (clean
-correct, condition wrong), and both-wrong shifts
-(Appendix~\ref{app:correction}, Table~\ref{tab:correction}).
-Regressions outnumber corrections in every condition, from
-3.3\,:\,1 under Noisy to 23.1\,:\,1 under Echo (sim), confirming
+ODR treats every clean-vs-condition disagreement as damage, conflating
+genuine harm with the rarer case in which SE incidentally corrects a
+clean-speech misclassification. Using SLURP ground-truth intents, we
+decompose divergent clips for each condition into corrections (clean
+wrong, condition correct), regressions (clean correct, condition
+wrong), and both-wrong shifts (Table~\ref{tab:correction}). Regressions outnumber corrections in
+every condition, ranging from 1.9\,:\,1 under Dereverb to
+23.1\,:\,1 under Echo~(sim), with Noisy at 3.3\,:\,1, confirming
 that ODR predominantly captures harmful divergence rather than
-benign correction. MetricGAN{+}'s 7.6\,:\,1 ratio confirms its intent
-damage is real rather than an artefact of clean-speech classification
-errors. A McNemar paired test on the same 2{,}966 clips confirms
-that MetricGAN{+} causes significantly more regressions than Noisy
-($\chi^2\!=\!427$, $p\!<\!10^{-90}$).
- 
+benign correction. MetricGAN{+}'s 7.6\,:\,1
+ratio confirms that its intent damage is real, rather than an artefact
+of clean-speech classification errors. A McNemar paired test on the
+same 2{,}966 clips confirms that MetricGAN{+} causes significantly
+more regressions than Noisy ($\chi^2\!=\!427$, $p\!<\!10^{-90}$).
+
+\input{tables/table4_correction_regression}
+
 \subsection{Quality Metrics as ODR Predictors}
- 
+
 Figure~\ref{fig:correlations} reports Pearson $r$ (left) and
 Spearman $\rho$ (right) for each metric against both WER and ODR.
 
@@ -411,28 +434,28 @@ ODR, suggesting that even purpose-built echo quality metrics do not
 reliably predict LLM task failure.
 
 \paragraph{Pooled correlations overstate predictive value.}
-The correlations above pool clips across all conditions, conflating
+The correlations above pool clips across conditions, conflating
 within-condition variation with between-condition separation.
-Echo (sim) simultaneously has the lowest mean PESQ and the
-highest ODR as a \emph{condition}, which alone can produce a
-substantial pooled correlation even if PESQ does not distinguish
-diverged from non-diverged clips \emph{within} any single condition.
-Recomputing each metric's correlation separately within each
-condition yields at most $|\rho| = 0.34$ (STOI within MetricGAN{+}),
-with PESQ reaching $|\rho| = 0.26$ and SNR, SRMR, and SQUIM-MOS
-remaining below 0.15 (full breakdown in Appendix~\ref{app:within_corr},
-Table~\ref{tab:within_corr}), vs.\ the pooled
-$\rho\!=\!-0.467$, indicating that no metric provides meaningful
-signal about \emph{which} clips will diverge once the enhancement
-condition is fixed.
-This further demonstrates that practitioners cannot use PESQ (or
-any of the six metrics tested) to anticipate per-clip LLM failures
-within a given SE pipeline. The pooled correlation reflects
-coarse condition-level separation, not clip-level predictive power.
+Echo (sim) has both the lowest mean PESQ and highest ODR as a
+\emph{condition}, which alone can produce a substantial pooled
+correlation even if PESQ does not distinguish diverged from
+non-diverged clips \emph{within} a condition. Recomputing each
+metric's correlation separately within each condition yields at most
+$|\rho| = 0.34$ (STOI within MetricGAN{+}), with PESQ reaching
+$|\rho| = 0.26$ and SNR, SRMR, and SQUIM-MOS below 0.15 (full
+breakdown in Appendix~\ref{app:within_corr},
+Table~\ref{tab:within_corr}), versus the pooled $\rho\!=\!-0.467$.
+Thus, no metric provides meaningful signal about \emph{which} clips
+will diverge once the enhancement condition is fixed.
+
+This further shows that practitioners cannot use PESQ, or any of the
+six tested metrics, to anticipate per-clip LLM failures within a given
+SE pipeline. The pooled correlation reflects coarse condition-level
+separation, not clip-level predictive power.
 
 \paragraph{Where PESQ fails as an early-warning signal.}
 Dichotomizing clips by within-condition median PESQ
-(Appendix~\ref{app:metricfail}, Table~\ref{tab:metricfail}) shows
+(Table~\ref{tab:metricfail}) shows
 that PESQ's failure mode is condition-dependent. Under Echo~(sim),
 82.3\,\% of above-median-PESQ clips still diverge, meaning PESQ offers
 no safety margin precisely when damage is worst. Under Dereverb and
@@ -440,21 +463,23 @@ Noisy, 84--88\,\% of below-median-PESQ clips do \emph{not} diverge,
 meaning PESQ over-warns on clips the LLM handles correctly. No single
 decision threshold on PESQ separates safe from unsafe clips across
 conditions.
+
+\input{tables/table5_metric_failure}
  
 \subsection{Architecture Robustness}
- 
+
 Table~\ref{tab:model_comparison} (Appendix~\ref{app:arch}) confirms
-that findings are not Whisper-specific. wav2vec2 produces the
-identical condition ranking (Spearman $\rho\!=\!1.0$, $p\!<\!0.001$)
-with higher absolute ODR on spectral
-distortion conditions (mean $\Delta\!=\!+0.157$).
-The sole exception is Echo (sim), where both models converge
-($\Delta\!=\!+0.017$), confirming that speaker-substitution failure is
-architecture-agnostic.
-The higher wav2vec2 ODR on spectral conditions suggests that
-CTC-based systems, common in latency-constrained deployments,
-may face greater enhancement-induced LLM damage than encoder-decoder
-estimates indicate.
+that the findings are not Whisper-specific. wav2vec2 produces an
+identical condition ranking (Spearman $\rho\!=\!1.0$, $p\!<\!0.001$),
+with higher ODR under spectral distortion conditions
+(mean $\Delta\!=\!+0.157$). The sole exception is Echo (sim), where
+both models converge ($\Delta\!=\!+0.017$), confirming that
+speaker-substitution failure is architecture-agnostic.
+
+The higher wav2vec2 ODR under spectral conditions suggests that
+CTC-based systems, common in latency-constrained deployments, may
+face greater enhancement-induced LLM damage than encoder-decoder
+estimates suggest.
  
 \subsection{Domain-Level Vulnerability}
  
@@ -470,6 +495,22 @@ ground-truth intent) and only 9.6\% are within-domain action
 confusion, confirming that SE distortion destroys coarse domain
 signals rather than producing fine-grained intent errors.
  
+\subsection{LLM Robustness}
+\label{sec:llm_robust}
+ 
+To assess whether findings depend on classifier capacity, we
+partially replicate the pipeline with Gemini~2.5 Pro.
+On the full 2{,}974 clean and noisy clips, the direction of harm is
+preserved: noisy ODR is 0.154 under Pro (vs.\ 0.135 under Flash Lite),
+consistent with random variation at this scale.
+Among the available 1{,}733 MetricGAN{+} clips, Pro ODR is 0.294.
+The doubling direction is preserved: a substantially more capable LLM
+still registers nearly twice as much semantic damage from
+MetricGAN{+} as from unenhanced noise ($1.91{\times}$ vs.\
+$2.36{\times}$ under Flash~Lite), consistent with the core finding
+being robust to classifier capacity, though a full five-condition
+Pro replication remains future work.
+ 
 %% ============================================================
 \section{Deployment Implications}
 \label{sec:implications}
@@ -480,10 +521,12 @@ Our results show WER can overestimate LLM damage (MetricGAN{+}:
 ODR\,=\,0.318, Gap\,=\,$-0.296$) or saturate while
 ODR remains catastrophic (Echo (sim): WER\,=\,1.448,
 ODR\,=\,0.836).
-We recommend ODR alongside WER as a standard evaluation criterion
-for any SE front-end deployed before an LLM, with particular urgency
-for CTC-based ASR systems where our results suggest ODR is
-systematically higher.
+We recommend ODR alongside WER as an offline evaluation criterion
+for comparing SE configurations before deployment. Like PESQ and
+STOI, it requires a clean reference recording and is therefore
+a development-time tool rather than an online per-utterance monitor.
+This recommendation carries urgency for CTC-based ASR
+systems, where our results suggest ODR is systematically higher.
  
 \paragraph{Echo cancellation is a hard requirement.}
 The echo condition reaches an ODR of 0.836 and 0.853 under both ASR
@@ -493,38 +536,41 @@ DNSMOS and PESQ score the near-end signal characteristics and cannot
 detect this failure because they do not assess which speaker was
 transcribed.
 In any conferencing deployment, functional AEC must be treated as a
-prerequisite for LLM integration, not just a quality optimization.
+prerequisite for LLM integration, not an optional quality refinement
+that can be deferred when latency or cost is constrained.
 
 \paragraph{Perceptual metrics cannot replace LLM task evaluation.}
-PESQ, the direct training objective of MetricGAN{+}, achieves only moderate rank association with ODR ($\rho = -0.467$), and non-intrusive SQUIM-MOS shows near-zero association ($\rho = -0.068$). SE pipelines optimised for perceptual quality scores provide no
-reliable guarantee of downstream LLM performance.
-ODR measurement on a representative intent task should be included
-in SE evaluation protocols for spoken AI systems.
-
+PESQ, MetricGAN{+}'s direct training objective, shows only moderate
+rank association with ODR ($\rho = -0.467$), while non-intrusive
+SQUIM-MOS shows near-zero association ($\rho = -0.068$).
+SE pipelines optimised for perceptual quality provide no reliable
+guarantee of downstream LLM performance. ODR measurement on a
+representative intent task should be included in SE evaluation
+protocols for spoken AI systems.
 %% ============================================================
 \section{Conclusion}
 \label{sec:conclusion}
 %% ============================================================
 
-We introduced Output Divergence Rate (ODR), a task-level metric
-that measures how often speech enhancement changes an LLM's intent
-prediction relative to clean speech, and used it to show that
-perceptual quality improvements do not guarantee, and can actively
-work against, downstream LLM task performance: MetricGAN{+} more
-than doubles ODR despite improving PESQ, and unmitigated echo
-drives ODR to 0.836 through a qualitatively distinct
-speaker-substitution failure invisible to WER.
-Standard quality metrics correlate with ODR only moderately at best
-and provide no reliable per-clip signal once the enhancement
-condition is fixed, and both patterns replicate across two ASR
-architectures.
-Our decomposition against ground-truth intent further shows that
-SE-induced divergence is predominantly harmful rather than a benign
-side effect of correcting clean-speech errors.
-We recommend ODR alongside WER as a standard evaluation criterion
-for any SE front-end deployed ahead of an LLM, and release our full
-pipeline to support further evaluation across additional LLMs,
-tasks, and SE systems.
+We introduced Output Divergence Rate (ODR), a task-level metric that
+measures how often speech enhancement changes an LLM's intent
+prediction relative to clean speech. Using ODR, we show that
+perceptual quality improvements neither guarantee downstream LLM task
+performance nor prevent degradation. MetricGAN{+} more than doubles
+ODR despite improving PESQ, while unmitigated echo drives ODR to 0.836
+through a distinct speaker-substitution failure beyond WER's scope.
+
+Audio quality metrics range from near-zero to moderate correlation
+with ODR and provide no reliable per-clip signal once the enhancement
+condition is fixed. Both patterns replicate across two ASR architectures. Our
+ground-truth intent decomposition further shows that SE-induced
+divergence is predominantly harmful, rather than a benign side effect
+of correcting clean-speech errors.
+
+We recommend ODR alongside WER as an offline evaluation criterion
+for SE front-ends deployed before an LLM.
+The full pipeline is publicly released to support evaluation across
+additional LLMs, tasks, and SE systems.
  
 %% ============================================================
 \section*{Limitations}
@@ -541,24 +587,22 @@ remain untested. Given that wav2vec2 consistently yields higher ODR
 than Whisper on spectral conditions, other CTC variants may amplify
 the effects reported here.
 
-The benchmark uses English-only data (SLURP), and enhancement artefacts
-on tonal languages or morphologically rich languages may interact
-differently with both ASR and LLM processing.
+The benchmark uses English-only SLURP data, and enhancement artefacts
+may interact differently with ASR and LLM processing in tonal or
+morphologically rich languages.
 
 ODR is defined over a fixed 77-class intent vocabulary. Open-ended generation tasks (summarisation, question answering, or dialogue)
 may exhibit different sensitivity to the transcript distortions induced
 by each SE condition, and the mapping between our findings and those
 settings requires further investigation.
 
-Our primary results use Gemini~2.5 Flash Lite as the downstream
-classifier. A partial replication with Gemini~2.5 Pro on clean and
-noisy conditions confirms that MetricGAN{+} nearly doubles ODR relative
-to unenhanced noise (ratio $1.91\times$ vs.\ $2.36\times$ under Flash
-Lite), indicating the finding is not an artefact of limited classifier
-capacity. Full multi-family LLM evaluation covering encoder-based
-classifiers such as BERT-style joint intent/slot models remains future work.
+Our primary results use Gemini~2.5 Flash Lite. Section~\ref{sec:llm_robust}
+reports a partial Gemini~2.5 Pro replication.
+Full multi-family LLM evaluation covering encoder-based classifiers
+such as BERT-style joint intent/slot models, and extending the Pro
+replication to all conditions, remains future work.
 
-On the echo side, we evaluate a single neural AEC system (DTLN-AEC).
+On the echo side, we evaluate a neural AEC system (DTLN-AEC).
 Other architectures, including multi-microphone beamforming-based
 cancellers and commercial AEC implementations, are untested and may
 offer different recovery profiles.
@@ -572,7 +616,7 @@ confidence scores) are a natural direction for extending ODR to
 deployment settings.
 
 Among SE approaches, we test one discriminative GAN-based suppressor
-(MetricGAN{+}), which is representative of widely deployed perceptual
+(MetricGAN{+}), which is representative of deployed perceptual
 optimisers. Diffusion-based, self-supervised, and proprietary commercial
 SE systems remain untested, and the rate of intent collapse under those
 approaches could differ substantially from what we report.
@@ -608,7 +652,7 @@ informed deployment decisions.
 \bibliography{custom}
 
 %% ============================================================
-%% Appendix — does NOT count toward 6-page limit
+%% Appendix --- does NOT count toward 7-page limit
 %% ============================================================
  
 \appendix
@@ -638,26 +682,14 @@ Intent:
 Table~\ref{tab:model_comparison} provides the full per-condition
 ODR and WER breakdown underlying the architecture comparison
 in Section \ref{sec:results}.
-\input{tables/table4_model_comparison}
-
-\section{Correct vs.\ Harmful Divergence}
-\label{app:correction}
-
-Table~\ref{tab:correction} decomposes each condition's divergent
-clips against SLURP ground-truth intent labels, distinguishing
-corrections from regressions and both-wrong shifts
-(\S\ref{sec:results}).
-\input{tables/table5_correction_regression}
+\input{tables/table6_model_comparison}
 
 \section{Quality Metric Predictive Failure}
 \label{app:metricfail}
 
-Table~\ref{tab:metricfail} reports PESQ false-negative and
-false-positive rates when used as a binary early-warning signal for
-ODR (\S\ref{sec:results}).
-\input{tables/table6_metric_failure}
+See Table~\ref{tab:metricfail} in Section~\ref{sec:results}.
 
-\if
+\iffalse
 To test whether our findings depend on the ASR front-end, we
 repeat the full pipeline with wav2vec2-large-960h
 \citep{baevski2020wav2vec} as an alternative to Whisper
@@ -671,7 +703,7 @@ consistent with CTC decoding fragility under distortion.
 \vspace{-4pt}
 \section{Domain-Level ODR}
 \label{app:domain}
-\if 
+\iffalse
 Table~\ref{tab:domain_odr} provides the full per-domain ODR
 breakdown underlying Section \ref{sec:results}. AEC recovery is
 uneven across domains: \emph{news} recovers only
@@ -705,6 +737,30 @@ The large reduction from pooled to within-condition values confirms
 that the pooled correlations (Table~\ref{tab:metrics},
 Figure~\ref{fig:correlations}) reflect between-condition separation
 rather than clip-level predictive power.
+
+\section{Log-Mel Spectrogram Comparison Across Conditions}
+\label{app:spectrograms}
+%% ============================================================
+
+Figure~\ref{fig:spectrograms} shows log-mel spectrograms of five
+representative SLURP utterances across all six conditions.
+Each panel shares the same colour scale (amplitude) and axis
+conventions: time on the horizontal axis, frequency (kHz) on the
+vertical axis.
+Panels in the same row depict the same utterance. The ground-truth
+transcript appears as a centred heading above each row.
+
+\definecolor{cclean}{HTML}{000000}
+\definecolor{cnoisy}{HTML}{000000}
+\definecolor{cmg}{HTML}{000000}
+\definecolor{caec}{HTML}{000000}
+\definecolor{caecf}{HTML}{000000}
+\definecolor{cdereverb}{HTML}{000000}
+
+\newlength{\specw}
+\setlength{\specw}{2.2cm}
+
+\input{tables/fig_spectrograms}
 
 \vspace*{\fill}
 

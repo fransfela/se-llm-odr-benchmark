@@ -1,0 +1,76 @@
+\begin{figure*}[p]
+\centering
+\setlength{\tabcolsep}{1pt}
+\renewcommand{\arraystretch}{0.5}
+\begin{tabular}{cccccc}
+\noalign{\vspace{3pt}}\hline\noalign{\vspace{3pt}}
+  \textbf{\textcolor{cclean}{Clean}} &
+  \textbf{\textcolor{cnoisy}{Noisy}} &
+  \textbf{\textcolor{cmg}{MetricGAN{+}}} &
+  \textbf{\textcolor{caec}{Echo (sim)}} &
+  \textbf{\textcolor{caecf}{Echo + DTLN-AEC}} &
+  \textbf{\textcolor{cdereverb}{Dereverb}} \\[2pt]
+\noalign{\vspace{3pt}}\hline\noalign{\vspace{3pt}}
+  %% Row 0 — "I want to hear snow by red hot chili peppers"
+  \multicolumn{6}{c}{\textit{``I want to hear snow by red hot chili peppers''}}\\
+  \includegraphics[height=1.5\specw]{figures/spec_r00_clean} &
+  \includegraphics[height=1.5\specw]{figures/spec_r00_noisy} &
+  \includegraphics[height=1.5\specw]{figures/spec_r00_ns_metricgan} &
+  \includegraphics[height=1.5\specw]{figures/spec_r00_aec_sim} &
+  \includegraphics[height=1.5\specw]{figures/spec_r00_aec_full} &
+  \includegraphics[height=1.5\specw]{figures/spec_r00_dereverb} \\
+  %% Row 1 — "How old are you"
+\noalign{\vspace{3pt}}\hline\noalign{\vspace{3pt}}
+  \multicolumn{6}{c}{\textit{``How old are you''}}\\
+  \includegraphics[height=1.5\specw]{figures/spec_r01_clean} &
+  \includegraphics[height=1.5\specw]{figures/spec_r01_noisy} &
+  \includegraphics[height=1.5\specw]{figures/spec_r01_ns_metricgan} &
+  \includegraphics[height=1.5\specw]{figures/spec_r01_aec_sim} &
+  \includegraphics[height=1.5\specw]{figures/spec_r01_aec_full} &
+  \includegraphics[height=1.5\specw]{figures/spec_r01_dereverb} \\
+  %% Row 2 — "Weather report now"
+\noalign{\vspace{3pt}}\hline\noalign{\vspace{3pt}}
+  \multicolumn{6}{c}{\textit{``Weather report now''}}\\
+  \includegraphics[height=1.5\specw]{figures/spec_r02_clean} &
+  \includegraphics[height=1.5\specw]{figures/spec_r02_noisy} &
+  \includegraphics[height=1.5\specw]{figures/spec_r02_ns_metricgan} &
+  \includegraphics[height=1.5\specw]{figures/spec_r02_aec_sim} &
+  \includegraphics[height=1.5\specw]{figures/spec_r02_aec_full} &
+  \includegraphics[height=1.5\specw]{figures/spec_r02_dereverb} \\
+  %% Row 3 — "I would like it to help analyze ideas"
+\noalign{\vspace{3pt}}\hline\noalign{\vspace{3pt}}
+  \multicolumn{6}{c}{\textit{``I would like it to help analyze ideas''}}\\
+  \includegraphics[height=1.5\specw]{figures/spec_r03_clean} &
+  \includegraphics[height=1.5\specw]{figures/spec_r03_noisy} &
+  \includegraphics[height=1.5\specw]{figures/spec_r03_ns_metricgan} &
+  \includegraphics[height=1.5\specw]{figures/spec_r03_aec_sim} &
+  \includegraphics[height=1.5\specw]{figures/spec_r03_aec_full} &
+  \includegraphics[height=1.5\specw]{figures/spec_r03_dereverb} \\
+  %% Row 4 — "I'm going to sleep now" (robust: zero ODR across all conditions)
+\noalign{\vspace{3pt}}\hline\noalign{\vspace{3pt}}
+  \multicolumn{6}{c}{\textit{``I'm going to sleep now''}}\\
+  \includegraphics[height=1.5\specw]{figures/spec_r04_clean} &
+  \includegraphics[height=1.5\specw]{figures/spec_r04_noisy} &
+  \includegraphics[height=1.5\specw]{figures/spec_r04_ns_metricgan} &
+  \includegraphics[height=1.5\specw]{figures/spec_r04_aec_sim} &
+  \includegraphics[height=1.5\specw]{figures/spec_r04_aec_full} &
+  \includegraphics[height=1.5\specw]{figures/spec_r04_dereverb} \\
+\noalign{\vspace{3pt}}\hline
+\end{tabular}
+\caption{Log-mel spectrograms of five SLURP utterances (rows) across
+  all six conditions (columns). Horizontal axis: time~(s);
+  vertical axis: frequency~(kHz); colour: amplitude (log-mel energy,
+  shared scale across all panels).
+  The ground-truth transcript of each utterance appears as a centred
+  heading above its row.
+  Noisy floods the high-frequency band with broadband noise.
+  MetricGAN{+} suppresses it but introduces vertical streak artefacts
+  (musical noise, visible above 4\,kHz) and alters the harmonic envelope.
+  Echo~(sim) shows a wholly different far-end utterance dominating the
+  near-end speech.
+  Echo~+~DTLN-AEC partially restores the near-end harmonic structure.
+  Dereverb is visually closest to Clean, consistent with its low ODR.
+  Row~5 (``I'm going to sleep now'') is a robust clip that does not
+  diverge under any condition; all six panels remain visually similar.}
+\label{fig:spectrograms}
+\end{figure*}

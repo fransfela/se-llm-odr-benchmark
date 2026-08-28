@@ -1,0 +1,22 @@
+\begin{table}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{%
+  \begin{tabular}{lrrr}
+    \hline
+    \textbf{Condition} & \textbf{Med.\,PESQ} & \textbf{FN (\%)} & \textbf{FP(\%)} \\
+    \hline
+    Noisy        & 1.61 & 11.4 & \textbf{84.4} \\
+    MetricGAN+   & 1.90 & 22.1 & 58.4 \\
+    Echo (sim)   & 1.09 & \textbf{82.3} & 15.0 \\
+    Echo + DTLN-AEC & 1.50 & 32.9 & 52.1 \\
+    Dereverb     & 2.35 & 10.0 & \textbf{88.4} \\
+    \hline
+  \end{tabular}%
+  }
+  \caption{PESQ as a binary early-warning signal (threshold =
+    within-condition median PESQ). FN: fraction of above-median clips
+    that still diverge (PESQ misses real damage). FP: fraction of
+    below-median clips that do not diverge (PESQ over-warns).
+    No threshold separates safe from unsafe clips across conditions.}
+  \label{tab:metricfail}
+\end{table}

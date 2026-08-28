@@ -1,0 +1,26 @@
+\begin{table*}[t]
+  \centering
+  \begin{tabular}{lrrrrr}
+    \hline
+    \textbf{Condition} & \textbf{Correction} & \textbf{Regression} &
+    \textbf{Both-Wrong} & \textbf{Unaffected} & \textbf{Regr.\,:\,Corr.} \\
+    \hline
+    Noisy        & 1.8\,\% & 6.0\,\%  & 5.8\,\%  & 86.5\,\% & 3.3\,:\,1  \\
+    MetricGAN+   & 2.5\,\% & 18.9\,\% & 10.4\,\% & 68.2\,\% & \textbf{7.6\,:\,1}  \\
+    Echo (sim)   & 2.5\,\% & 58.4\,\% & 22.7\,\% & 16.4\,\% & \textbf{23.1\,:\,1} \\
+    Echo + DTLN-AEC & 2.4\,\% & 24.0\,\% & 14.0\,\% & 59.6\,\% & 10.0\,:\,1 \\
+    Dereverb     & 2.2\,\% & 4.2\,\%  & 4.4\,\%  & 89.2\,\% & 1.9\,:\,1  \\
+    \hline
+  \end{tabular}
+  \caption{Decomposition of each condition's divergent clips against
+    SLURP ground-truth intent (Whisper + Gemini~2.5 Flash Lite).
+    \textbf{Correction}: clean prediction wrong, condition prediction
+    correct. \textbf{Regression}: clean prediction correct, condition
+    prediction wrong. \textbf{Both-Wrong}: both predictions wrong and
+    mutually different. \textbf{Unaffected}: clean and condition
+    predictions agree (correct or incorrect together). Regressions
+    outnumber corrections in every condition, confirming ODR
+    predominantly reflects harmful divergence rather than benign
+    correction of clean-speech classification errors.}
+  \label{tab:correction}
+\end{table*}

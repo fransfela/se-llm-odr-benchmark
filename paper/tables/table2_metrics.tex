@@ -1,24 +1,29 @@
 \begin{table*}[t]
   \centering
-  \begin{tabular}{lrrrrrrrrr}
+  \resizebox{2.05\columnwidth}{!}{%
+  \begin{tabular}{lrrrrrrrrrr}
     \hline
     \textbf{Condition} & \textbf{PESQ} & \textbf{STOI} &
     \textbf{SNR} & \textbf{SI-SDR} &
-    \textbf{SRMR} & \textbf{SQUIM} & \textbf{WER} & \textbf{ODR} \\
+    \textbf{SRMR} & \textbf{SQUIM} & \textbf{WER} & \textbf{WER$_\text{cap}$} & \textbf{ODR} \\
     \hline
-    Clean           & 4.64 & 1.00 & 105.12 & 94.35 & 8.56 & 4.22 & 0.507 & -- \\
-    Noisy           & 1.76 & 0.87 & 9.92 & 10.00 & 6.24 & 3.77 & 0.531 & 0.135 \\
-    MetricGAN+      & \textbf{1.94} & 0.80 & 1.81 & 4.23 & 10.96 & 3.87 & 0.647 & \textbf{0.318} \\
-    Echo (sim)      & 1.11 & 0.52 & $-$2.69 & $-$5.01 & 6.24 & 3.69 & \textbf{1.448} & \textbf{0.836} \\
-    Echo + DTLN-AEC & 1.53 & 0.47 & $-$1.66 & $-$26.13 & 10.98 & 3.92 & 0.700 & 0.404 \\
-    Dereverb        & 2.43 & 0.71 & $-$4.72 & $-$23.04 & 7.79 & 3.94 & 0.517 & 0.108 \\
+    Clean           & 4.64 & 1.00 & 105.12 & 94.35 & 8.56 & 4.22 & 0.507 & 0.507 & -- \\
+    Noisy           & 1.76 & 0.87 & 9.92 & 10.00 & 6.24 & 3.77 & 0.531 & 0.531 & 0.135 \\
+    MetricGAN+      & 1.94 & 0.80 & 1.81 & 4.23 & 10.96 & 3.87 & 0.647 & 0.647 & \textbf{0.318} \\
+    Echo (sim)      & 1.11 & 0.52 & $-$2.69 & $-$5.01 & 6.24 & 3.69 & \textbf{1.448} & 0.928 & \textbf{0.836} \\
+    Echo + DTLN-AEC & 1.53 & 0.47 & $-$1.66 & $-$26.13 & 10.98 & 3.92 & 0.700 & 0.700 & 0.404 \\
+    %DTLN-AEC & & & & & & & & & \\
+    Dereverb        & 2.43 & 0.71 & $-$4.72 & $-$23.04 & 7.79 & 3.94 & 0.517 & 0.517 & 0.108 \\
     \hline
-  \end{tabular}
+  \end{tabular}%
+  }
   \caption{Mean audio quality metric scores, Whisper WER, and ODR per
     condition (Clean shown as reference, ODR\,=\,0 by definition).
-    The WER--ODR gap per Eq.~(\ref{eq:gap}) can be read directly from
-    the two adjacent columns. Bold marks the conditions with the
-    highest ODR (Echo~(sim), MetricGAN{+}) and the saturating WER
-    (Echo~(sim) 1.448, raw Whisper WER before per-clip capping at 1.0).}
+    WER: raw mean per-clip word error rate.
+    WER$_\text{cap}$: mean of $\min(\text{WER}_i, 1.0)$ per clip,
+    used in the WER--ODR gap (Eq.~\ref{eq:gap}).
+    Bold marks the highest ODR values
+    (Echo~(sim) and MetricGAN{+}) and the saturating raw WER
+    (Echo~(sim) 1.448).}
   \label{tab:metrics}
 \end{table*}
